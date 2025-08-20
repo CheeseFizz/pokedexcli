@@ -53,6 +53,7 @@ func (c *Cache) reapLoop() {
 func NewCache(interval time.Duration) *Cache {
 	result := new(Cache)
 	result.interval = interval
+	result.Entries = make(map[string]cacheEntry)
 	go result.reapLoop()
 	return result
 }

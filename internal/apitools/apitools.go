@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/CheeseFizz/pokedexcli/internal/pokecache"
 )
 
 const pokeApi = "https://pokeapi.co/api/v2/"
@@ -25,19 +27,24 @@ type NamedApiResourceList struct {
 	Results  []NamedApiResource
 }
 
-func GetPokeApiResourceList(url string) (NamedApiResourceList, error) {
+func GetPokeApiResourceList(url string, c *pokecache.Cache) (NamedApiResourceList, error) {
 	var result NamedApiResourceList
 	var zero NamedApiResourceList
 
-	res, err := http.Get(url)
-	if err != nil {
-		return result, err
-	}
-	defer res.Body.Close()
+	body, ok := c.Get(url)
+	if !ok {
+		res, err := http.Get(url)
+		if err != nil {
+			return result, err
+		}
+		defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return zero, err
+		body, err = io.ReadAll(res.Body)
+		if err != nil {
+			return zero, err
+		}
+
+		c.Add(url, body)
 	}
 
 	if err := json.Unmarshal(body, &result); err != nil {

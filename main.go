@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/CheeseFizz/pokedexcli/internal/apitools"
+	"github.com/CheeseFizz/pokedexcli/internal/pokecache"
 )
 
 type config struct {
@@ -29,28 +31,26 @@ type cliCommand struct {
 }
 
 var cliRegistry = make(map[string]cliCommand)
+var apiCache = pokecache.NewCache(time.Duration(10 * time.Second))
 
 func commandMap(config *config) error {
 	// get url from api registry if no config cache
-	Url := config.next
-	if len(Url) == 0 {
-		url, err := apitools.GetPokeApiUrlPath("LocationAreas")
+	var err error
+	url := config.next
+	if len(url) == 0 {
+		url, err = apitools.GetPokeApiUrlPath("LocationAreas")
 		if err != nil {
 			return err
 		}
-		Url = url
 	}
 
 	// get list of location areas
-	res, err := apitools.GetPokeApiResourceList(Url)
+	res, err := apitools.GetPokeApiResourceList(url, apiCache)
 	if err != nil {
 		return err
 	}
 	config.SetNext(res.Next)
 	config.SetPrevious(res.Previous)
-
-	fmt.Printf("in map config.next: %v\n", config.next)
-	fmt.Printf("in map config.previous: %v\n", config.previous)
 
 	for _, item := range res.Results {
 		fmt.Println(item.Name)
@@ -67,7 +67,7 @@ func commandMapb(config *config) error {
 	url := config.previous
 
 	// get list of location areas
-	res, err := apitools.GetPokeApiResourceList(url)
+	res, err := apitools.GetPokeApiResourceList(url, apiCache)
 	if err != nil {
 		return err
 	}
