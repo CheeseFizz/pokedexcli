@@ -39,7 +39,7 @@ type VersionGroup struct {
 	Id                 int
 	Name               string
 	Order              int
-	Generation         Generation
+	Generation         *Generation
 	Move_learn_methods []MoveLearnMethod
 	Pokedexes          []Pokedex
 	Regions            []Region
@@ -68,6 +68,9 @@ type Region struct {
 	Version_groups  []VersionGroup
 }
 
+type Location struct {
+}
+
 type EncounterMethod struct {
 	Id    int
 	Name  string
@@ -90,7 +93,28 @@ type LocationArea struct {
 	Name                   string
 	Game_index             int
 	Encounter_method_rates []EncounterMethodRate
-	Location               NamedApiResource
+	Location               Location
 	Names                  []Name
 	Pokemon_encounters     []PokemonEncounter
+}
+
+type Pokedex struct {
+}
+
+type PokemonSpecies struct {
+}
+
+type PokemonEncounter struct {
+}
+
+type Type struct {
+}
+
+type Move struct {
+}
+
+type MoveLearnMethod struct {
+}
+
+type Ability struct {
 }
