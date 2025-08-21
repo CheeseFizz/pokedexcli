@@ -15,18 +15,6 @@ var pokeApiReference = map[string]string{
 	"LocationAreas": fmt.Sprintf("%slocation-area", pokeApi),
 }
 
-type NamedApiResource struct {
-	Name string
-	Url  string
-}
-
-type NamedApiResourceList struct {
-	Count    int
-	Next     string
-	Previous string
-	Results  []NamedApiResource
-}
-
 func GetPokeApiResourceList(url string, c *pokecache.Cache) (NamedApiResourceList, error) {
 	var result NamedApiResourceList
 	var zero NamedApiResourceList
