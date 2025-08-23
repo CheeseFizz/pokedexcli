@@ -155,7 +155,7 @@ type Pokedex struct {
 
 type Pokemon struct {
 	Id                       int
-	Name                     string
+	Name                     string `json:"name"`
 	Base_experience          int
 	Height                   int
 	Is_default               bool
@@ -169,9 +169,9 @@ type Pokemon struct {
 	Moves                    []PokemonMove
 	Past_types               []PokemonTypePast
 	Past_abilities           []PokemonAbilityPast
-	Sprites                  PokemonSprites
-	Cries                    PokemonCries
-	Species                  PokemonSpecies
+	Sprites                  *PokemonSprites
+	Cries                    *PokemonCries
+	Species                  *NamedApiResource
 	Stats                    []PokemonStat
 	Types                    []PokemonType
 }
@@ -231,14 +231,14 @@ type PokemonStat struct {
 }
 
 type PokemonSprites struct {
-	Front_default       int
-	Front_shinty        int
-	Front_female        int
-	Front_shinty_female int
-	Back_default        int
-	Back_shinty         int
-	Back_female         int
-	Back_shinty_female  int
+	Front_default       string
+	Front_shinty        string
+	Front_female        string
+	Front_shinty_female string
+	Back_default        string
+	Back_shinty         string
+	Back_female         string
+	Back_shinty_female  string
 }
 
 type PokemonCries struct {
@@ -309,7 +309,7 @@ type PokemonEntry struct {
 
 type PokemonSpecies struct {
 	Id                     int
-	Name                   string
+	Name                   string `json:"name"`
 	Order                  int
 	Gender_rate            int
 	Capture_rate           int
