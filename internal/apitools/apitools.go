@@ -63,6 +63,30 @@ var pokeApiReference = map[string]string{
 	"Languages":                fmt.Sprintf("%slanguage", pokeApi),
 }
 
+func GetPokeApiResource[T any](url string, c *pokecache.Cache, reciever *T) error {
+	body, ok := c.Get(url)
+	if !ok {
+		res, err := http.Get(url)
+		if err != nil {
+			return err
+		}
+		defer res.Body.Close()
+
+		body, err = io.ReadAll(res.Body)
+		if err != nil {
+			return err
+		}
+
+		c.Add(url, body)
+	}
+
+	if err := json.Unmarshal(body, reciever); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetPokeApiResourceList(url string, c *pokecache.Cache) (NamedApiResourceList, error) {
 	var result NamedApiResourceList
 	var zero NamedApiResourceList

@@ -26,14 +26,14 @@ func (c *config) SetPrevious(url string) {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, []string) error
 	config      *config
 }
 
 var cliRegistry = make(map[string]cliCommand)
 var apiCache = pokecache.NewCache(time.Duration(10 * time.Second))
 
-func commandMap(config *config) error {
+func commandMap(config *config, _ []string) error {
 	// get url from api registry if no config cache
 	var err error
 	url := config.next
@@ -59,7 +59,7 @@ func commandMap(config *config) error {
 	return nil
 }
 
-func commandMapb(config *config) error {
+func commandMapb(config *config, _ []string) error {
 	if len(config.previous) == 0 {
 		fmt.Println("you're on the first page")
 		return nil
@@ -81,7 +81,28 @@ func commandMapb(config *config) error {
 	return nil
 }
 
-func commandHelp(config *config) error {
+func commandExplore(_ *config, locationArea []string) error {
+	location := apitools.LocationArea{}
+
+	url, err := apitools.GetPokeApiUrlPath("LocationAreas")
+	if err != nil {
+		return err
+	}
+	url = fmt.Sprintf("%s/%s", url, locationArea[0])
+
+	err = apitools.GetPokeApiResource(url, apiCache, &location)
+	if err != nil {
+		return err
+	}
+
+	for _, enc := range location.Pokemon_encounters {
+		fmt.Println(enc.Pokemon.Name)
+	}
+
+	return nil
+}
+
+func commandHelp(_ *config, _ []string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Print("Usage:\n\n")
 	for _, entry := range cliRegistry {
@@ -94,7 +115,7 @@ func commandHelp(config *config) error {
 	return nil
 }
 
-func commandExit(config *config) error {
+func commandExit(_ *config, _ []string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return fmt.Errorf("Something went wrong; the program didn't exit.")
@@ -123,6 +144,12 @@ func main() {
 			callback:    commandMapb,
 			config:      mapConfig,
 		},
+		"explore": {
+			name:        "explore",
+			description: "List Pokemon in the location. Use: explore <map-location>",
+			callback:    commandExplore,
+			config:      &config{},
+		},
 		"help": {
 			name:        "help",
 			description: "Print 'help' message",
@@ -138,15 +165,23 @@ func main() {
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
+	var args = []string{}
 	for {
+		args = []string{}
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
 		input := cleanInput(scanner.Text())
+		if len(input) == 0 {
+			continue
+		}
+		if len(input) > 1 {
+			args = input[1:]
+		}
 		command, ok := cliRegistry[input[0]]
 		if !ok {
 			fmt.Println("Unknown command")
 		} else {
-			err := command.callback(command.config)
+			err := command.callback(command.config, args)
 			if err != nil {
 				fmt.Printf("%v\n", err)
 			}

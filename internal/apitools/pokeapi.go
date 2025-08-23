@@ -124,7 +124,7 @@ type EncounterMethod struct {
 
 type EncounterMethodRate struct {
 	Encounter_method *EncounterMethod
-	Version_details  *EncounterVersionDetails
+	Version_details  []EncounterVersionDetails
 }
 
 type EncounterVersionDetails struct {
@@ -414,7 +414,7 @@ type PalParkEncounterSpecies struct {
 
 type PokemonEncounter struct {
 	Pokemon         *Pokemon
-	Version_details *VersionEncounterDetail
+	Version_details []VersionEncounterDetail
 }
 
 type VersionEncounterDetail struct {
